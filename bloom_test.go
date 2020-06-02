@@ -6,8 +6,8 @@ import (
 )
 
 func TestHash(t *testing.T) {
-	cases := []struct{
-		key string
+	cases := []struct {
+		key    string
 		bitNum uint64
 	}{
 		{``, 37},

@@ -30,7 +30,7 @@ func (b *Bloom) Test(data []byte) bool {
 func (b *Bloom) Add(data []byte) error {
 	for n := 0; n < b.keys; n++ {
 		err := b.bitset.Set(hash(data, n) % b.bitset.Size())
-		if err !=  nil {
+		if err != nil {
 			return err
 		}
 	}
