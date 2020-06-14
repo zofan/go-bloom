@@ -18,7 +18,7 @@ func New(bs *bitset.BitSet, keys int) *Bloom {
 }
 
 func (b *Bloom) Test(data []byte) bool {
-	for n := 0; n < b.keys; n++ {
+	for n := 1; n <= b.keys; n++ {
 		if !b.bitset.Test(hash(data, n) % b.bitset.Size()) {
 			return false
 		}
@@ -28,7 +28,7 @@ func (b *Bloom) Test(data []byte) bool {
 }
 
 func (b *Bloom) Add(data []byte) error {
-	for n := 0; n < b.keys; n++ {
+	for n := 1; n <= b.keys; n++ {
 		err := b.bitset.Set(hash(data, n) % b.bitset.Size())
 		if err != nil {
 			return err
@@ -39,13 +39,13 @@ func (b *Bloom) Add(data []byte) error {
 }
 
 func hash(data []byte, i int) uint64 {
-	data = append(data, byte(i))
+	//data = append(data, byte(i))
 
 	var hash uint64 = 14695981039346656037
 
 	for _, b := range data {
 		hash ^= uint64(b)
-		hash += (hash << 8) + (hash << 16) + (hash << 24) + (hash << 32) + (hash << 40) + (hash << 48) + (hash << 56)
+		hash += (hash << 8) + (hash << 16) + (hash << 24) + (hash << 32) + (hash << 40) + (hash << 48) + (hash << 56) + (hash << uint64(i%8))
 	}
 
 	return hash
