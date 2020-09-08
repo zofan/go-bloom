@@ -27,12 +27,14 @@ func (b *Bloom) Test(data []byte) bool {
 	return true
 }
 
-func (b *Bloom) Add(data []byte) error {
+func (b *Bloom) Add(data []byte) {
 	for n := 1; n <= b.keys; n++ {
 		b.bitset.Set(hash(data, n) % b.bitset.Size())
 	}
+}
 
-	return nil
+func (b *Bloom) Marshal() []byte {
+	return b.bitset.Marshal()
 }
 
 func hash(data []byte, i int) uint64 {
