@@ -2,10 +2,16 @@ package bloom
 
 import (
 	"github.com/zofan/go-bitset"
+	"hash"
+	"hash/crc64"
+	"hash/fnv"
 )
 
 type Bloom struct {
 	bitset *bitset.BitSet
+
+	hashFNV   hash.Hash64
+	hashCrc64 hash.Hash64
 
 	keys int
 }
@@ -14,12 +20,15 @@ func New(bs *bitset.BitSet, keys int) *Bloom {
 	return &Bloom{
 		bitset: bs,
 		keys:   keys,
+
+		hashFNV:   fnv.New64(),
+		hashCrc64: crc64.New(crc64.MakeTable(crc64.ISO)),
 	}
 }
 
 func (b *Bloom) Test(data []byte) bool {
 	for n := 1; n <= b.keys; n++ {
-		if !b.bitset.Test(hash(data, n) % b.bitset.Size()) {
+		if !b.bitset.Test(b.hashData(data, n) % b.bitset.Size()) {
 			return false
 		}
 	}
@@ -29,23 +38,28 @@ func (b *Bloom) Test(data []byte) bool {
 
 func (b *Bloom) Add(data []byte) {
 	for n := 1; n <= b.keys; n++ {
-		b.bitset.Set(hash(data, n) % b.bitset.Size())
+		b.bitset.Set(b.hashData(data, n) % b.bitset.Size())
 	}
 }
 
-func (b *Bloom) Marshal() []byte {
-	return b.bitset.Marshal()
+func (b *Bloom) MarshalBinary() ([]byte, error) {
+	return b.bitset.MarshalBinary()
 }
 
-func hash(data []byte, i int) uint64 {
-	//data = append(data, byte(i))
+func (b *Bloom) hashData(data []byte, i int) uint64 {
+	algo := b.hashFNV
 
-	var hash uint64 = 14695981039346656037
-
-	for _, b := range data {
-		hash ^= uint64(b)
-		hash += (hash << 8) + (hash << 16) + (hash << 24) + (hash << 32) + (hash << 40) + (hash << 48) + (hash << 56) + (hash << uint64(i%8))
+	if i%2 == 0 {
+		algo = b.hashCrc64
 	}
 
-	return hash
+	algo.Reset()
+	_, _ = algo.Write(data)
+	_, _ = algo.Write([]byte{
+		byte(0xff & i),
+		byte(0xff & (i >> 8)),
+		byte(0xff & (i >> 16)),
+		byte(0xff & (i >> 24)),
+	})
+	return algo.Sum64()
 }

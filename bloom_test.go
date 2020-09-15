@@ -10,17 +10,22 @@ func TestHash(t *testing.T) {
 		key    string
 		bitNum uint64
 	}{
-		{``, 37},
-		{`hello`, 11},
-		{`world`, 19},
-		{`1000`, 36},
-		{`10000`, 60},
-		{`100000`, 36},
-		{`golang`, 35},
+		{``, 0},
+		{`hello`, 12},
+		{`world`, 12},
+		{`1000`, 63},
+		{`2000`, 17},
+		{`10000`, 5},
+		{`100000`, 18},
+		{`golang`, 38},
+		{"\n\n\n", 48},
+		{"\t\t\t", 43},
 	}
 
-	for _, c := range cases {
-		if bn := hash([]byte(c.key), 1) % 64; bn != c.bitNum {
+	b := New(bitset.New(64), 1)
+
+	for i, c := range cases {
+		if bn := b.hashData([]byte(c.key), i) % 64; bn != c.bitNum {
 			t.Errorf(`expected bit number %d for key %s, given %d`, c.bitNum, c.key, bn)
 		}
 	}
@@ -30,10 +35,7 @@ func TestA(t *testing.T) {
 	bs := bitset.New(64)
 	b := New(bs, 3)
 
-	err := b.Add([]byte(`hello`))
-	if err != nil {
-		t.Error(`add key, expected empty error`)
-	}
+	b.Add([]byte(`hello`))
 
 	if !b.Test([]byte(`hello`)) {
 		t.Error(`test key, expected true`)
