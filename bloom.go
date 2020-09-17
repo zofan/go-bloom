@@ -42,6 +42,7 @@ func (b *Bloom) Add(data []byte) {
 	}
 }
 
+// implement interface: BinaryMarshaler
 func (b *Bloom) MarshalBinary() ([]byte, error) {
 	return b.bitset.MarshalBinary()
 }
