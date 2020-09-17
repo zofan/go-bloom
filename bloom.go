@@ -27,7 +27,7 @@ func New(bs *bitset.BitSet, keys int) *Bloom {
 }
 
 func (b *Bloom) Test(data []byte) bool {
-	for n := 1; n <= b.keys; n++ {
+	for n := 0; n < b.keys; n++ {
 		if !b.bitset.Test(b.hashData(data, n) % b.bitset.Size()) {
 			return false
 		}
@@ -37,7 +37,7 @@ func (b *Bloom) Test(data []byte) bool {
 }
 
 func (b *Bloom) Add(data []byte) {
-	for n := 1; n <= b.keys; n++ {
+	for n := 0; n < b.keys; n++ {
 		b.bitset.Set(b.hashData(data, n) % b.bitset.Size())
 	}
 }
