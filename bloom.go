@@ -42,11 +42,6 @@ func (b *Bloom) Add(data []byte) {
 	}
 }
 
-// implement interface: BinaryMarshaler
-func (b *Bloom) MarshalBinary() ([]byte, error) {
-	return b.bitset.MarshalBinary()
-}
-
 func (b *Bloom) hashData(data []byte, i int) uint64 {
 	algo := b.hashFNV
 
