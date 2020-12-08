@@ -1,7 +1,6 @@
 package bloom
 
 import (
-	"github.com/zofan/go-bitset"
 	"testing"
 )
 
@@ -10,19 +9,19 @@ func TestHash(t *testing.T) {
 		key    string
 		bitNum uint64
 	}{
-		{``, 0},
+		{``, 53},
 		{`hello`, 12},
-		{`world`, 12},
+		{`world`, 21},
 		{`1000`, 63},
-		{`2000`, 17},
+		{`2000`, 35},
 		{`10000`, 5},
-		{`100000`, 18},
+		{`100000`, 24},
 		{`golang`, 38},
-		{"\n\n\n", 48},
+		{"\n\n\n", 13},
 		{"\t\t\t", 43},
 	}
 
-	b := New(bitset.New(64), 1)
+	b := New(64, 1)
 
 	for i, c := range cases {
 		if bn := b.hashData([]byte(c.key), i) % 64; bn != c.bitNum {
@@ -32,8 +31,7 @@ func TestHash(t *testing.T) {
 }
 
 func TestA(t *testing.T) {
-	bs := bitset.New(64)
-	b := New(bs, 3)
+	b := New(64, 10)
 
 	b.Add([]byte(`hello`))
 
